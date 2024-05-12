@@ -8,7 +8,14 @@ function App() {
   const [searchType, setSearchType] = useState("s");
   const [searchInput, setSearchInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [cocktail, setCocktail] = useState({});
+  const [cocktail, setCocktail] = useState({} as Cocktail);
+
+  interface Cocktail {
+    strDrink: string;
+    strInstructions: string;
+    strGlass: string;
+    strCategory: string;
+  }
 
   useEffect(() => {
     fetch(
@@ -18,7 +25,7 @@ function App() {
       .then((data) => setCocktails(data.drinks))
       .catch((err) => console.log(err));
   }, []);
-  
+
   const inputHandler = (input: string) => {
     setSearchInput(input);
   };
@@ -42,28 +49,34 @@ function App() {
     setSearchInput("");
   };
 
-const cocktailDetails = async (drinkID: string) => {
-  try {
-    const res = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${drinkID}`);
-    const data = await res.json();
-    setCocktail(data.drinks[0]);
-    setDialogOpen(true);
-  } catch (err) {
-    console.log(err);
-  }
-};
+  const cocktailDetails = async (drinkID: string) => {
+    try {
+      const res = await fetch(
+        `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${drinkID}`
+      );
+      const data = await res.json();
+      setCocktail(data.drinks[0]);
+      setDialogOpen(true);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
-  <div className="w-full h-96 top-0 fixed -z-50">
-        <video src="/video/indexVideo.mp4" className="object-none top-36 w-full h-full" autoPlay muted loop></video>
-  </div>
- <div className="mb-10">
-
+      <div className="w-full h-96 top-0 fixed -z-50">
+        <video
+          src="/video/indexVideo.mp4"
+          className="object-none top-36 w-full h-full"
+          autoPlay
+          muted
+          loop
+        ></video>
+      </div>
+      <div className="mb-10">
         <h1 className="text-6xl md:text-7xl lg:text-9xl font-bold text-center mt-8 mb-20 md:mt-28 md:mb-60">
           C o c k t a i l 🍸n d e x
         </h1>
-
 
         <SearchBar
           searchType={searchType}
@@ -74,7 +87,7 @@ const cocktailDetails = async (drinkID: string) => {
         />
         {dialogOpen && (
           <ItemDialog
-            cocktail={cocktail}
+            cocktail={cocktail as Cocktail}
             title={cocktail.strDrink}
             instructions={cocktail.strInstructions}
             glass={cocktail.strGlass}
@@ -83,19 +96,21 @@ const cocktailDetails = async (drinkID: string) => {
           />
         )}
         <div className="mt-44 md:mt-28 mx-auto flex flex-wrap justify-center gap-10">
-          {cocktails ? cocktails.map((cocktail: any) => {
-            return (
-              <ItemCard
-                onClick={() => {
-                  cocktailDetails(cocktail.idDrink);
-                }}
-                key={cocktail.idDrink}
-                title={cocktail.strDrink}
-                category={cocktail.strCategory}
-                img={cocktail.strDrinkThumb}
-              ></ItemCard>
-            );
-          }) : null}
+          {cocktails
+            ? cocktails.map((cocktail: any) => {
+                return (
+                  <ItemCard
+                    onClick={() => {
+                      cocktailDetails(cocktail.idDrink);
+                    }}
+                    key={cocktail.idDrink}
+                    title={cocktail.strDrink}
+                    category={cocktail.strCategory}
+                    img={cocktail.strDrinkThumb}
+                  ></ItemCard>
+                );
+              })
+            : null}
         </div>
       </div>
     </>
